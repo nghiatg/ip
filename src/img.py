@@ -4,9 +4,7 @@ import math
 
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-ip = "E:\\study\\img\\otherstuff\\344967.png"
 ip2 = "..\\81841.jpg"
-op = "E:\\study\\img\\otherstuff\\344967_gray.png"
 op2 = "..\\81841_edge.jpg"
 bigThreshold = 200
 smallThreshold = 100
