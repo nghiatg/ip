@@ -4,7 +4,7 @@ import numpy as np
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
 ip = "E:\\study\\img\\otherstuff\\344967.png"
-op = "E:\\study\\img\\otherstuff\\344967_gray2.png"
+op = "E:\\study\\img\\otherstuff\\344967_gray.png"
 threshold = 200
 
 
@@ -55,19 +55,30 @@ def writeImage(mode, size, outputPath):
 
 def changeImageToGray(input, output):
     img = readImage(input)
-    pix = img.load()
+    # pix = img.load()
     grayMatrix = savePixelGrayValueToMatrix(img)
-    # print(grayMatrix.shape)
-    # # imgMatrix = np.array([grayMatrix,grayMatrix,grayMatrix]).reshape(1200,1920,3)
-    # # print(imgMatrix.shape)
-    #
-    # imgRS = Image.fromarray(grayMatrix,'RGB')
-    # print(imgRS.size)
+    print(grayMatrix.shape)
+    imgMatrix = np.transpose(np.array([grayMatrix,grayMatrix,grayMatrix]),(1,2,0))
+    print(imgMatrix.shape)
+    for x in range(10):
+        print(10*x)
+        print(imgMatrix[101*x][101*x][0])
+        print(imgMatrix[101*x][101*x][1])
+        print(imgMatrix[101*x][101*x][2])
+        print(grayMatrix[101*x][101*x])
+        print("\n")
 
-    for x in range(img.size[0]):
-        for y in range(img.size[1]):
-            pix[x, y] = (int(round(grayMatrix[y,x])), int(round(grayMatrix[y,x])),int(round(grayMatrix[y,x])))
-    img.save(output)
+    imgRS = Image.fromarray(imgMatrix.astype('uint8'))
+    # imgRS.show()
+    print(imgRS.mode)
+    imgRS.save(output)
+
+
+
+    # for x in range(img.size[0]):
+    #     for y in range(img.size[1]):
+    #         pix[x, y] = (int(round(grayMatrix[y,x])), int(round(grayMatrix[y,x])),int(round(grayMatrix[y,x])))
+    # img.save(output)
 
 
 # type 1 : horizontal
