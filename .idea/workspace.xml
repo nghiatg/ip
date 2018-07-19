@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f7d0c973-83e0-4d30-a095-33a5e29760a6" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/img.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/img.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,10 +16,12 @@
       <file leaf-file-name="img.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/img.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1173">
-              <caret line="69" lean-forward="true" selection-start-line="69" selection-end-line="69" />
+            <state relative-caret-position="207">
+              <caret line="304" column="62" lean-forward="true" selection-start-line="304" selection-start-column="62" selection-end-line="304" selection-end-column="62" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
+                <element signature="e#3411#4569#0" />
+                <element signature="e#4527#5531#0" />
               </folding>
             </state>
           </provider>
@@ -34,6 +35,16 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>mag</find>
+      <find>return 0</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>dir</replace>
+      <replace>return -1</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -164,6 +175,8 @@
           <caret line="63" column="47" lean-forward="true" selection-start-line="63" selection-start-column="47" selection-end-line="63" selection-end-column="47" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#3411#4569#0" />
+            <element signature="e#4527#5531#0" />
           </folding>
         </state>
       </provider>
@@ -174,6 +187,8 @@
           <caret line="2" column="19" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#3411#4569#0" />
+            <element signature="e#4527#5531#0" />
           </folding>
         </state>
       </provider>
@@ -183,10 +198,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/img.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1173">
-          <caret line="69" lean-forward="true" selection-start-line="69" selection-end-line="69" />
+        <state relative-caret-position="207">
+          <caret line="304" column="62" lean-forward="true" selection-start-line="304" selection-start-column="62" selection-end-line="304" selection-end-column="62" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#3411#4569#0" />
+            <element signature="e#4527#5531#0" />
           </folding>
         </state>
       </provider>
