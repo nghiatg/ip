@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f7d0c973-83e0-4d30-a095-33a5e29760a6" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/img.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/img.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,12 +17,10 @@
       <file leaf-file-name="img.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/img.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="304" column="62" lean-forward="true" selection-start-line="304" selection-start-column="62" selection-end-line="304" selection-end-column="62" />
+            <state relative-caret-position="170">
+              <caret line="164" column="29" lean-forward="true" selection-start-line="164" selection-start-column="29" selection-end-line="164" selection-end-column="29" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
-                <element signature="e#3411#4569#0" />
-                <element signature="e#4527#5531#0" />
               </folding>
             </state>
           </provider>
@@ -40,10 +39,15 @@
     <findStrings>
       <find>mag</find>
       <find>return 0</find>
+      <find>3</find>
+      <find>length</find>
     </findStrings>
     <replaceStrings>
       <replace>dir</replace>
       <replace>return -1</replace>
+      <replace>margin+1</replace>
+      <replace>height</replace>
+      <replace>width</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -70,6 +74,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -86,7 +91,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -171,12 +175,20 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/img.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="21" selection-start-line="7" selection-start-column="21" selection-end-line="7" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/img.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1071">
           <caret line="63" column="47" lean-forward="true" selection-start-line="63" selection-start-column="47" selection-end-line="63" selection-end-column="47" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <element signature="e#3411#4569#0" />
-            <element signature="e#4527#5531#0" />
           </folding>
         </state>
       </provider>
@@ -187,8 +199,6 @@
           <caret line="2" column="19" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <element signature="e#3411#4569#0" />
-            <element signature="e#4527#5531#0" />
           </folding>
         </state>
       </provider>
@@ -196,14 +206,19 @@
     <entry file="file://$PROJECT_DIR$/src/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/numpy/core/fromnumeric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="2319" selection-start-line="2319" selection-end-line="2319" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/img.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="304" column="62" lean-forward="true" selection-start-line="304" selection-start-column="62" selection-end-line="304" selection-end-column="62" />
+        <state relative-caret-position="170">
+          <caret line="164" column="29" lean-forward="true" selection-start-line="164" selection-start-column="29" selection-end-line="164" selection-end-column="29" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <element signature="e#3411#4569#0" />
-            <element signature="e#4527#5531#0" />
           </folding>
         </state>
       </provider>

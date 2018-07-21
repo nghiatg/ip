@@ -1,13 +1,14 @@
 from PIL import Image
 import numpy as np
 import math
+import time
 
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-ip2 = "..\\81841.jpg"
-op2 = "..\\81841_edge.jpg"
-bigThreshold = 200
-smallThreshold = 100
+ip2 = "..\\sunset_winter.jpg"
+op2 = "..\\sunset_winter_edge.jpg"
+bigThreshold = 150
+smallThreshold = 75
 
 
 def readImage(inputPath):
@@ -18,6 +19,50 @@ def savePixelGrayValueToMatrix(img):
     rgbMatrix = np.array(img)
     rs = np.apply_along_axis(convertToGrayValue,2,rgbMatrix)
     return rs
+
+
+def smoothingMaxMin(grayMatrix,margin):
+    count = 0
+    rs = np.empty(grayMatrix.shape)
+    height = grayMatrix.shape[0]
+    width = grayMatrix.shape[1]
+    for y in range(height):
+        for x in range(width):
+            value = grayMatrix[y][x]
+            grayMatrix[y][x] = grayMatrix[y][x-1] if x>0 else grayMatrix[y][x+1]
+            max = np.max(grayMatrix[y-margin if y>=margin else 0 : y+margin+1,x-margin if x>=margin else 0 : x+margin+1])
+            min = np.min(grayMatrix[y-margin if y>=margin else 0 : y+margin+1,x-margin if x>=margin else 0 : x+margin+1])
+
+            if (value > max):
+                count += 1
+                grayMatrix[y][x] = max
+            elif (value < min):
+                count += 1
+                grayMatrix[y][x] = min
+            else:
+                grayMatrix[y][x] = value
+
+            # if(value > max):
+            #     count += 1
+            #     rs[y][x] = max
+            # elif (value < min):
+            #     count += 1
+            #     rs[y][x] = min
+            # else:
+            #     rs[y][x] = value
+            # grayMatrix[y][x] = value
+    print("count : " + str(count))
+    # return rs
+
+def smoothingAvg(grayMatrix,margin):
+    count = 0
+    rs = np.empty(grayMatrix.shape)
+    height = grayMatrix.shape[0]
+    width = grayMatrix.shape[1]
+    for y in range(height):
+        for x in range(width):
+            grayMatrix[y][x] = grayMatrix[y][x-1] if x>0 else grayMatrix[y][x+1]
+            grayMatrix[y][x] = np.average(grayMatrix[y-margin if y>=margin else 0 : y+margin+1,x-margin if x>=margin else 0 : x+margin+1])
 
 
 def initiateMask():
@@ -79,7 +124,7 @@ def getMagnitudeMatrix(horMatrix,verMatrix):
 
 
 def getDirectionMatrix(horMatrix,verMatrix):
-    np.seterr(divide='ignore')
+    np.seterr(all='ignore')
     rs = np.empty(shape=horMatrix.shape)
     for x in range(0, horMatrix.shape[0] - 1):
         for y in range(0, horMatrix.shape[1] - 1):
@@ -293,10 +338,15 @@ def from1dTo2d(id,width):
 
 
 if __name__ == '__main__':
+    start = time.clock()
     initiateMask()
     img = readImage(ip2)
     gray_matrix = savePixelGrayValueToMatrix(img)
+    print(-1)
+    smoothGrayMatrix = smoothingAvg(gray_matrix,1)
+    print(0)
     biggerMatrix = saveToBiggerMatrix(gray_matrix,1)
+    # biggerMatrix = saveToBiggerMatrix(smoothGrayMatrix,1)
     print(1)
     horizontalGradientMatrix = getGradientMatrix(biggerMatrix,1)
     print(2)
@@ -315,6 +365,7 @@ if __name__ == '__main__':
         location = from1dTo2d(id,img.size[0])
         pix[location[0][1],location[0][0]] = 0
     edgeImg.save(op2)
+    print("--- %s seconds ---" % (time.clock() - start))
 
 
 
