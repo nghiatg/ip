@@ -101,15 +101,15 @@ def smoothingAvg2(grayMatrix,margin):
         sumMatrix[:,x-1] = sum_Y_Matrix[:,x-1] + sum_Y_Matrix[:,x+1] + sum_Y_Matrix[:,x]
     # print(sumMatrix)
     rs = np.empty(grayMatrix.shape)
-    rs[1:height-1,1:width-1] = np.floor(sumMatrix[1:height-1,1:width-1]/9)
-    rs[0,1:width-1] = np.floor(sumMatrix[0,1:width-1] / 6)
-    rs[height-1, 1:width - 1] = np.floor(sumMatrix[height-1, 1:width - 1] / 6)
-    rs[1:height-1, 0] = np.floor(sumMatrix[1:height-1, 0] / 6)
-    rs[1:height - 1, width-1] = np.floor(sumMatrix[1:height - 1, width-1] / 6)
-    rs[0][0] = np.floor(sumMatrix[0][0] / 4)
-    rs[0][width-1] = np.floor(sumMatrix[0][width-1] / 4)
-    rs[height-1][0] = np.floor(sumMatrix[height-1][0] / 4)
-    rs[height-1][width-1] = np.floor(sumMatrix[height-1][width-1] / 4)
+    rs[1:height-1,1:width-1] = np.round(sumMatrix[1:height-1,1:width-1]/9)
+    rs[0,1:width-1] = np.round(sumMatrix[0,1:width-1] / 6)
+    rs[height-1, 1:width - 1] = np.round(sumMatrix[height-1, 1:width - 1] / 6)
+    rs[1:height-1, 0] = np.round(sumMatrix[1:height-1, 0] / 6)
+    rs[1:height - 1, width-1] = np.round(sumMatrix[1:height - 1, width-1] / 6)
+    rs[0][0] = np.round(sumMatrix[0][0] / 4)
+    rs[0][width-1] = np.round(sumMatrix[0][width-1] / 4)
+    rs[height-1][0] = np.round(sumMatrix[height-1][0] / 4)
+    rs[height-1][width-1] = np.round(sumMatrix[height-1][width-1] / 4)
     return rs
 
 
