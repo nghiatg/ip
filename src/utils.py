@@ -16,3 +16,4 @@ def saveToBiggerMatrix(data_matrix, margin):
     rs = np.zeros(shape=(data_matrix.shape[0] + margin * 2, data_matrix.shape[1] + margin * 2))
     rs[margin:rs.shape[0] - margin, margin:rs.shape[1] - margin] = data_matrix
     return rs
+

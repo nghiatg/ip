@@ -1,7 +1,7 @@
 from PIL import Image
 import numpy as np
+from src import utils
 import math
-import time
 
 def readImage(inputPath):
     return Image.open(inputPath)
@@ -66,6 +66,7 @@ def smoothingAvg(grayMatrix, margin):
             grayMatrix[y][x] = grayMatrix[y][x - 1] if x > 0 else grayMatrix[y][x + 1]
             grayMatrix[y][x] = np.average(grayMatrix[y - margin if y >= margin else 0: y + margin + 1,
                                           x - margin if x >= margin else 0: x + margin + 1])
+    return grayMatrix
 
 
 def convertToGrayValue(rgbValue):
@@ -85,3 +86,32 @@ def changeImageToGray(input, output):
     imgRS = Image.fromarray(imgMatrix.astype('uint8'))
     # imgRS.show()
     imgRS.save(output)
+
+def smoothingAvg2(grayMatrix,margin):
+    width = grayMatrix.shape[1]
+    height = grayMatrix.shape[0]
+    biggerMatrix = utils.saveToBiggerMatrix(grayMatrix,1)
+    # print(biggerMatrix)
+    sum_Y_Matrix = np.empty((height,width+2))
+    for y in range(1,biggerMatrix.shape[0]-1):
+        sum_Y_Matrix[y-1,:] = biggerMatrix[y-1,:] + biggerMatrix[y,:] + biggerMatrix[y+1,:]
+    # print(sum_Y_Matrix)
+    sumMatrix = np.empty(grayMatrix.shape)
+    for x in range(1,biggerMatrix.shape[1]-1):
+        sumMatrix[:,x-1] = sum_Y_Matrix[:,x-1] + sum_Y_Matrix[:,x+1] + sum_Y_Matrix[:,x]
+    # print(sumMatrix)
+    rs = np.empty(grayMatrix.shape)
+    rs[1:height-1,1:width-1] = np.floor(sumMatrix[1:height-1,1:width-1]/9)
+    rs[0,1:width-1] = np.floor(sumMatrix[0,1:width-1] / 6)
+    rs[height-1, 1:width - 1] = np.floor(sumMatrix[height-1, 1:width - 1] / 6)
+    rs[1:height-1, 0] = np.floor(sumMatrix[1:height-1, 0] / 6)
+    rs[1:height - 1, width-1] = np.floor(sumMatrix[1:height - 1, width-1] / 6)
+    rs[0][0] = np.floor(sumMatrix[0][0] / 4)
+    rs[0][width-1] = np.floor(sumMatrix[0][width-1] / 4)
+    rs[height-1][0] = np.floor(sumMatrix[height-1][0] / 4)
+    rs[height-1][width-1] = np.floor(sumMatrix[height-1][width-1] / 4)
+    return rs
+
+
+
+
