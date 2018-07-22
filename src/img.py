@@ -14,14 +14,23 @@ smallThreshold = 75
 def readImage(inputPath):
     return Image.open(inputPath)
 
-
-def savePixelGrayValueToMatrix(img):
+# too slow
+def savePixelGrayValueToMatrixSlow(img):
     rgbMatrix = np.array(img)
-    rs = np.apply_along_axis(convertToGrayValue,2,rgbMatrix)
+    rs = np.apply_along_axis(convertToGrayValue, 2, rgbMatrix)
     return rs
 
 
-def smoothingMaxMin(grayMatrix,margin):
+def savePixelGrayValueToMatrix(img):
+    rgbMatrix = np.array(img)
+    matrix1 = rgbMatrix[:, :, 0] * 0.299
+    matrix2 = rgbMatrix[:, :, 1] * 0.587
+    matrix3 = rgbMatrix[:, :, 2] * 0.114
+    return matrix1 + matrix2 + matrix3
+
+
+
+def smoothingMaxMin(grayMatrix, margin):
     count = 0
     rs = np.empty(grayMatrix.shape)
     height = grayMatrix.shape[0]
@@ -29,9 +38,11 @@ def smoothingMaxMin(grayMatrix,margin):
     for y in range(height):
         for x in range(width):
             value = grayMatrix[y][x]
-            grayMatrix[y][x] = grayMatrix[y][x-1] if x>0 else grayMatrix[y][x+1]
-            max = np.max(grayMatrix[y-margin if y>=margin else 0 : y+margin+1,x-margin if x>=margin else 0 : x+margin+1])
-            min = np.min(grayMatrix[y-margin if y>=margin else 0 : y+margin+1,x-margin if x>=margin else 0 : x+margin+1])
+            grayMatrix[y][x] = grayMatrix[y][x - 1] if x > 0 else grayMatrix[y][x + 1]
+            max = np.max(grayMatrix[y - margin if y >= margin else 0: y + margin + 1,
+                         x - margin if x >= margin else 0: x + margin + 1])
+            min = np.min(grayMatrix[y - margin if y >= margin else 0: y + margin + 1,
+                         x - margin if x >= margin else 0: x + margin + 1])
 
             if (value > max):
                 count += 1
@@ -54,15 +65,17 @@ def smoothingMaxMin(grayMatrix,margin):
     print("count : " + str(count))
     # return rs
 
-def smoothingAvg(grayMatrix,margin):
+
+def smoothingAvg(grayMatrix, margin):
     count = 0
     rs = np.empty(grayMatrix.shape)
     height = grayMatrix.shape[0]
     width = grayMatrix.shape[1]
     for y in range(height):
         for x in range(width):
-            grayMatrix[y][x] = grayMatrix[y][x-1] if x>0 else grayMatrix[y][x+1]
-            grayMatrix[y][x] = np.average(grayMatrix[y-margin if y>=margin else 0 : y+margin+1,x-margin if x>=margin else 0 : x+margin+1])
+            grayMatrix[y][x] = grayMatrix[y][x - 1] if x > 0 else grayMatrix[y][x + 1]
+            grayMatrix[y][x] = np.average(grayMatrix[y - margin if y >= margin else 0: y + margin + 1,
+                                          x - margin if x >= margin else 0: x + margin + 1])
 
 
 def initiateMask():
@@ -74,7 +87,7 @@ def initiateMask():
     verticalMask[2] = ([1, 2, 1])
 
 
-def saveToBiggerMatrix(data_matrix,margin):
+def saveToBiggerMatrix(data_matrix, margin):
     rs = np.zeros(shape=(data_matrix.shape[0] + margin * 2, data_matrix.shape[1] + margin * 2))
     rs[margin:rs.shape[0] - margin, margin:rs.shape[1] - margin] = data_matrix
     return rs
@@ -93,7 +106,7 @@ def changeImageToGray(input, output):
     img = readImage(input)
     # pix = img.load()
     grayMatrix = savePixelGrayValueToMatrix(img)
-    imgMatrix = np.transpose(np.array([grayMatrix,grayMatrix,grayMatrix]),(1,2,0))
+    imgMatrix = np.transpose(np.array([grayMatrix, grayMatrix, grayMatrix]), (1, 2, 0))
     imgRS = Image.fromarray(imgMatrix.astype('uint8'))
     # imgRS.show()
     imgRS.save(output)
@@ -101,39 +114,38 @@ def changeImageToGray(input, output):
 
 # type 1 : horizontal
 # type 2 : vertical
+# type 1 : horizontal
+# type 2 : vertical
 def getGradientMatrix(biggerMatrix, type):
     rs = np.empty(shape=(biggerMatrix.shape[0] - 2, biggerMatrix.shape[1] - 2))
+
     if (type == 1):
-        for x in range(1, biggerMatrix.shape[0] - 2):
-            for y in range(1, biggerMatrix.shape[1] - 2):
-                rs[x][y] = sum(biggerMatrix[x - 1:x + 2, y - 1:y + 2].flatten() * horizontalMask.flatten())
-                # print(str(x) + "\t" + str(y) + "\t" + str(rs[x][y]))
+        for y in range(1, biggerMatrix.shape[1] - 2):
+            leftConvolution = np.convolve(horizontalMask[:,0],biggerMatrix[:,y-1],mode="valid")
+            rightConvolution = np.convolve(horizontalMask[:,2],biggerMatrix[:,y+1],mode="valid")
+            rs[:,y-1] = leftConvolution + rightConvolution
         return rs
     else:
         for x in range(1, biggerMatrix.shape[0] - 2):
-            for y in range(1, biggerMatrix.shape[1] - 2):
-                rs[x][y] = sum(biggerMatrix[x - 1:x + 2, y - 1:y + 2].flatten() * verticalMask.flatten())
+            upperConvolution = np.convolve(verticalMask[0,:],biggerMatrix[x-1,:],mode="valid")
+            bottomConvolution = np.convolve(verticalMask[2,:],biggerMatrix[x+1,:],mode="valid")
+            rs[x-1,:] = upperConvolution + bottomConvolution
         return rs
 
-def getMagnitudeMatrix(horMatrix,verMatrix):
-    rs = np.empty(shape=horMatrix.shape)
-    for x in range(0, horMatrix.shape[0] - 1):
-        for y in range(0, horMatrix.shape[1] - 1):
-            rs[x][y] = math.sqrt(horMatrix[x][y] * horMatrix[x][y] + verMatrix[x][y] * verMatrix[x][y])
-    return rs
+
+def getMagnitudeMatrix(horMatrix, verMatrix):
+    return np.sqrt(horMatrix ** 2 + verMatrix ** 2)
 
 
-def getDirectionMatrix(horMatrix,verMatrix):
+def getDirectionMatrix(horMatrix, verMatrix):
     np.seterr(all='ignore')
-    rs = np.empty(shape=horMatrix.shape)
-    for x in range(0, horMatrix.shape[0] - 1):
-        for y in range(0, horMatrix.shape[1] - 1):
-            rs[x][y] = math.degrees(math.atan(horMatrix[x][y] / verMatrix[x][y]))
-    return rs
+    # tanMatrix =
+    # dirMatrix = np.array([math.degrees(math.atan(x)) for x in tanMatrix.flatten()]).reshape(horMatrix.shape)
+    return np.degrees(np.arctan(horMatrix/verMatrix))
 
 
 # use 1d index
-def cannyGetEdgePoints(magMatrix,dirMatrix,width):
+def cannyGetEdgePoints(magMatrix, dirMatrix, width):
     mag = magMatrix.flatten()
     dir = dirMatrix.flatten()
     # print(type(dir))
@@ -146,65 +158,81 @@ def cannyGetEdgePoints(magMatrix,dirMatrix,width):
     for id in gt[0]:
         # print(id)
         # print(dir[id])
-        if(dir[id] <= 22.5 or dir[id] > 157.5):
-            if(isHorMax(id,mag,width)):
+        if (dir[id] <= 22.5 or dir[id] > 157.5):
+            if (isHorMax(id, mag, width)):
                 points.append(id)
-        elif (dir[id] <= 67.5 ):
-            if (isBackwardSlashMax(id,mag,width)):
+        elif (dir[id] <= 67.5):
+            if (isBackwardSlashMax(id, mag, width)):
                 points.append(id)
-        elif (dir[id] <= 112.5 ):
-            if (isVerMax(id,mag,width)):
+        elif (dir[id] <= 112.5):
+            if (isVerMax(id, mag, width)):
                 points.append(id)
-        elif (dir[id] <= 157.5 ):
-            if (isForwardSlashMax(id,mag,width)):
+        elif (dir[id] <= 157.5):
+            if (isForwardSlashMax(id, mag, width)):
                 points.append(id)
 
     # apply small threshold
     considering = points.copy()
-    while(considering):
+    while (considering):
         print(len(considering))
         for id in considering:
             if (dir[id] <= 22.5 or dir[id] > 157.5):
-                if((id-width not in points) and getMagValue(id,mag,1,width) >= smallThreshold and getDirValue(id,dir,1,width) != -1 and (getDirValue(id,dir,1,width) <= 22.5 or getDirValue(id,dir,1,width) > 157.5)):
-                    if(isHorMax(id - width,mag,width)):
-                        points.append(id-width)
+                if ((id - width not in points) and getMagValue(id, mag, 1, width) >= smallThreshold and getDirValue(id,
+                                                                                                                    dir,
+                                                                                                                    1,
+                                                                                                                    width) != -1 and (
+                        getDirValue(id, dir, 1, width) <= 22.5 or getDirValue(id, dir, 1, width) > 157.5)):
+                    if (isHorMax(id - width, mag, width)):
+                        points.append(id - width)
                         considering.append(id - width)
-                if ((id+width not in points) and getMagValue(id,mag,7,width) >= smallThreshold and getDirValue(id,dir,7,width) != -1 and (getDirValue(id, dir, 7, width) <= 22.5 or getDirValue(id, dir, 7, width) > 157.5)):
+                if ((id + width not in points) and getMagValue(id, mag, 7, width) >= smallThreshold and getDirValue(id,
+                                                                                                                    dir,
+                                                                                                                    7,
+                                                                                                                    width) != -1 and (
+                        getDirValue(id, dir, 7, width) <= 22.5 or getDirValue(id, dir, 7, width) > 157.5)):
                     if (isHorMax(id + width, mag, width)):
-                        points.append(id+width)
+                        points.append(id + width)
                         considering.append(id + width)
 
             elif (dir[id] <= 67.5):
-                if ((id-width+1 not in points) and getMagValue(id,mag,2,width) >= smallThreshold and getDirValue(id, dir, 2, width) != -1 and (
+                if ((id - width + 1 not in points) and getMagValue(id, mag, 2, width) >= smallThreshold and getDirValue(
+                        id, dir, 2, width) != -1 and (
                         getDirValue(id, dir, 2, width) <= 67.5 and getDirValue(id, dir, 2, width) > 22.5)):
                     if (isBackwardSlashMax(id - width + 1, mag, width)):
                         points.append(id - width + 1)
                         considering.append(id - width + 1)
-                if ((id+width-1 not in points) and getMagValue(id,mag,6,width) >= smallThreshold and getDirValue(id, dir, 6, width) != -1 and (
+                if ((id + width - 1 not in points) and getMagValue(id, mag, 6, width) >= smallThreshold and getDirValue(
+                        id, dir, 6, width) != -1 and (
                         getDirValue(id, dir, 6, width) <= 67.5 and getDirValue(id, dir, 6, width) > 22.5)):
                     if (isBackwardSlashMax(id + width - 1, mag, width)):
                         points.append(id + width - 1)
                         considering.append(id + width - 1)
 
             elif (dir[id] <= 112.5):
-                if ((id-1 not in points) and getMagValue(id,mag,3,width) >= smallThreshold and getDirValue(id, dir, 3, width) != -1 and (
+                if ((id - 1 not in points) and getMagValue(id, mag, 3, width) >= smallThreshold and getDirValue(id, dir,
+                                                                                                                3,
+                                                                                                                width) != -1 and (
                         getDirValue(id, dir, 3, width) <= 112.5 and getDirValue(id, dir, 3, width) > 67.5)):
                     if (isVerMax(id - 1, mag, width)):
                         points.append(id - 1)
                         considering.append(id - 1)
-                if ((id+1 not in points) and getMagValue(id,mag,5,width) >= smallThreshold and getDirValue(id, dir, 5, width) != -1 and (
+                if ((id + 1 not in points) and getMagValue(id, mag, 5, width) >= smallThreshold and getDirValue(id, dir,
+                                                                                                                5,
+                                                                                                                width) != -1 and (
                         getDirValue(id, dir, 5, width) <= 67.5 and getDirValue(id, dir, 5, width) > 22.5)):
-                    if (isVerMax(id  + 1, mag, width)):
+                    if (isVerMax(id + 1, mag, width)):
                         points.append(id + 1)
                         considering.append(id + 1)
 
             elif (dir[id] <= 157.5):
-                if ((id-width-1 not in points) and getMagValue(id,mag,0,width) >= smallThreshold and getDirValue(id, dir, 0, width) != -1 and (
+                if ((id - width - 1 not in points) and getMagValue(id, mag, 0, width) >= smallThreshold and getDirValue(
+                        id, dir, 0, width) != -1 and (
                         getDirValue(id, dir, 0, width) <= 67.5 and getDirValue(id, dir, 0, width) > 22.5)):
                     if (isForwardSlashMax(id - width - 1, mag, width)):
                         points.append(id - width - 1)
                         considering.append(id - width - 1)
-                if ((id+width+1 not in points) and getMagValue(id,mag,8,width) >= smallThreshold and getDirValue(id, dir, 8, width) != -1 and (
+                if ((id + width + 1 not in points) and getMagValue(id, mag, 8, width) >= smallThreshold and getDirValue(
+                        id, dir, 8, width) != -1 and (
                         getDirValue(id, dir, 8, width) <= 67.5 and getDirValue(id, dir, 8, width) > 22.5)):
                     if (isForwardSlashMax(id + width + 1, mag, width)):
                         points.append(id + width + 1)
@@ -213,15 +241,14 @@ def cannyGetEdgePoints(magMatrix,dirMatrix,width):
     return points
 
 
-
 # location:
 # 0   1   2
 # 3   4   5
 # 6   7   8
-def getMagValue(id,magFlatten,relativeLocation,width):
-    if(relativeLocation == 0):
+def getMagValue(id, magFlatten, relativeLocation, width):
+    if (relativeLocation == 0):
         try:
-            return magFlatten(id-width-1)
+            return magFlatten(id - width - 1)
         except:
             return 0
     elif (relativeLocation == 1):
@@ -265,10 +292,10 @@ def getMagValue(id,magFlatten,relativeLocation,width):
 # 0   1   2
 # 3   4   5
 # 6   7   8
-def getDirValue(id,dirFlatten,relativeLocation,width):
-    if(relativeLocation == 0):
+def getDirValue(id, dirFlatten, relativeLocation, width):
+    if (relativeLocation == 0):
         try:
-            return dirFlatten(id-width-1)
+            return dirFlatten(id - width - 1)
         except:
             return -1
     elif (relativeLocation == 1):
@@ -308,31 +335,42 @@ def getDirValue(id,dirFlatten,relativeLocation,width):
             return -1
 
 
-def isHorMax(id,magFlatten,width):
-    if(getMagValue(id,magFlatten,1,width) < magFlatten[id] and getMagValue(id,magFlatten,7,width) < magFlatten[id]):
-        return True
-    return False
-def isVerMax(id,magFlatten,width):
-    if(getMagValue(id,magFlatten,3,width) < magFlatten[id] and getMagValue(id,magFlatten,5,width) < magFlatten[id]):
-        return True
-    return False
-def isForwardSlashMax(id,magFlatten,width):
-    if(getMagValue(id,magFlatten,2,width) < magFlatten[id] and getMagValue(id,magFlatten,6,width) < magFlatten[id]):
-        return True
-    return False
-def isBackwardSlashMax(id,magFlatten,width):
-    if(getMagValue(id,magFlatten,0,width) < magFlatten[id] and getMagValue(id,magFlatten,8,width) < magFlatten[id]):
+def isHorMax(id, magFlatten, width):
+    if (getMagValue(id, magFlatten, 1, width) < magFlatten[id] and getMagValue(id, magFlatten, 7, width) < magFlatten[
+        id]):
         return True
     return False
 
-def from2dTo1d(yIndex,xIndex,width):
+
+def isVerMax(id, magFlatten, width):
+    if (getMagValue(id, magFlatten, 3, width) < magFlatten[id] and getMagValue(id, magFlatten, 5, width) < magFlatten[
+        id]):
+        return True
+    return False
+
+
+def isForwardSlashMax(id, magFlatten, width):
+    if (getMagValue(id, magFlatten, 2, width) < magFlatten[id] and getMagValue(id, magFlatten, 6, width) < magFlatten[
+        id]):
+        return True
+    return False
+
+
+def isBackwardSlashMax(id, magFlatten, width):
+    if (getMagValue(id, magFlatten, 0, width) < magFlatten[id] and getMagValue(id, magFlatten, 8, width) < magFlatten[
+        id]):
+        return True
+    return False
+
+
+def from2dTo1d(yIndex, xIndex, width):
     return yIndex * width + xIndex
 
 
 # [y,x]
-def from1dTo2d(id,width):
-    rs = np.empty((1,2))
-    rs[0][0] = int(round(id/width))
+def from1dTo2d(id, width):
+    rs = np.empty((1, 2))
+    rs[0][0] = int(math.floor(id / width))
     rs[0][1] = id % width
     return rs
 
@@ -343,34 +381,49 @@ if __name__ == '__main__':
     img = readImage(ip2)
     gray_matrix = savePixelGrayValueToMatrix(img)
     print(-1)
-    smoothGrayMatrix = smoothingAvg(gray_matrix,1)
+    time1 = time.clock()
+    print(time1-start)
+    smoothGrayMatrix = smoothingAvg(gray_matrix, 1)
     print(0)
-    biggerMatrix = saveToBiggerMatrix(gray_matrix,1)
-    # biggerMatrix = saveToBiggerMatrix(smoothGrayMatrix,1)
+    time2 = time.clock()
+    print(time2-time1)
+    biggerMatrix = saveToBiggerMatrix(gray_matrix, 1)
     print(1)
-    horizontalGradientMatrix = getGradientMatrix(biggerMatrix,1)
+    time3 = time.clock()
+    print(time3-time2)
+    horizontalGradientMatrix = getGradientMatrix(biggerMatrix, 1)
     print(2)
-    verticalGradientMatrix = getGradientMatrix(biggerMatrix,2)
+    time4 = time.clock()
+    print(time4-time3)
+    verticalGradientMatrix = getGradientMatrix(biggerMatrix, 2)
     print(3)
-    magnitudeMatrix = getMagnitudeMatrix(horizontalGradientMatrix,verticalGradientMatrix)
+    time5 = time.clock()
+    print(time5-time4)
+    magnitudeMatrix = getMagnitudeMatrix(horizontalGradientMatrix, verticalGradientMatrix)
     print(4)
-    directionMatrix = getDirectionMatrix(horizontalGradientMatrix,verticalGradientMatrix)
+    time6 = time.clock()
+    print(time6-time5)
+    directionMatrix = getDirectionMatrix(horizontalGradientMatrix, verticalGradientMatrix)
     print(5)
-    edgePoints = cannyGetEdgePoints(magnitudeMatrix,directionMatrix,img.size[0])
+    time7 = time.clock()
+    print(time7-time6)
+    edgePoints = cannyGetEdgePoints(magnitudeMatrix, directionMatrix, img.size[0])
     print(6)
-    edgeImg = Image.new("1", img.size,255)
+    time8 = time.clock()
+    print(time8-time7)
+    edgeImg = Image.new("1", img.size, 255)
     print(7)
     pix = edgeImg.load()
     for id in edgePoints:
-        location = from1dTo2d(id,img.size[0])
-        pix[location[0][1],location[0][0]] = 0
+        location = from1dTo2d(id, img.size[0])
+        try:
+            pix[location[0][1], location[0][0]] = 0
+        except:
+            print(id)
+            print(location[0][1])
+            print(location[0][0])
     edgeImg.save(op2)
     print("--- %s seconds ---" % (time.clock() - start))
-
-
-
-
-
 
     # edgeImg = Image.new("RGB", img.size, (255, 255, 255))
     # changeImageToGray(ip,op)
