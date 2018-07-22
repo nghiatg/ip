@@ -1,82 +1,9 @@
-from PIL import Image
 import numpy as np
-import math
-import time
 
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-ip2 = "..\\sunset_winter.jpg"
-op2 = "..\\sunset_winter_edge.jpg"
 bigThreshold = 150
 smallThreshold = 75
-
-
-def readImage(inputPath):
-    return Image.open(inputPath)
-
-# too slow
-def savePixelGrayValueToMatrixSlow(img):
-    rgbMatrix = np.array(img)
-    rs = np.apply_along_axis(convertToGrayValue, 2, rgbMatrix)
-    return rs
-
-
-def savePixelGrayValueToMatrix(img):
-    rgbMatrix = np.array(img)
-    matrix1 = rgbMatrix[:, :, 0] * 0.299
-    matrix2 = rgbMatrix[:, :, 1] * 0.587
-    matrix3 = rgbMatrix[:, :, 2] * 0.114
-    return matrix1 + matrix2 + matrix3
-
-
-
-def smoothingMaxMin(grayMatrix, margin):
-    count = 0
-    rs = np.empty(grayMatrix.shape)
-    height = grayMatrix.shape[0]
-    width = grayMatrix.shape[1]
-    for y in range(height):
-        for x in range(width):
-            value = grayMatrix[y][x]
-            grayMatrix[y][x] = grayMatrix[y][x - 1] if x > 0 else grayMatrix[y][x + 1]
-            max = np.max(grayMatrix[y - margin if y >= margin else 0: y + margin + 1,
-                         x - margin if x >= margin else 0: x + margin + 1])
-            min = np.min(grayMatrix[y - margin if y >= margin else 0: y + margin + 1,
-                         x - margin if x >= margin else 0: x + margin + 1])
-
-            if (value > max):
-                count += 1
-                grayMatrix[y][x] = max
-            elif (value < min):
-                count += 1
-                grayMatrix[y][x] = min
-            else:
-                grayMatrix[y][x] = value
-
-            # if(value > max):
-            #     count += 1
-            #     rs[y][x] = max
-            # elif (value < min):
-            #     count += 1
-            #     rs[y][x] = min
-            # else:
-            #     rs[y][x] = value
-            # grayMatrix[y][x] = value
-    print("count : " + str(count))
-    # return rs
-
-
-def smoothingAvg(grayMatrix, margin):
-    count = 0
-    rs = np.empty(grayMatrix.shape)
-    height = grayMatrix.shape[0]
-    width = grayMatrix.shape[1]
-    for y in range(height):
-        for x in range(width):
-            grayMatrix[y][x] = grayMatrix[y][x - 1] if x > 0 else grayMatrix[y][x + 1]
-            grayMatrix[y][x] = np.average(grayMatrix[y - margin if y >= margin else 0: y + margin + 1,
-                                          x - margin if x >= margin else 0: x + margin + 1])
-
 
 def initiateMask():
     horizontalMask[0] = ([-1, 0, 1])
@@ -85,31 +12,6 @@ def initiateMask():
     verticalMask[0] = ([-1, -2, -1])
     verticalMask[1] = ([0, 0, 0])
     verticalMask[2] = ([1, 2, 1])
-
-
-def saveToBiggerMatrix(data_matrix, margin):
-    rs = np.zeros(shape=(data_matrix.shape[0] + margin * 2, data_matrix.shape[1] + margin * 2))
-    rs[margin:rs.shape[0] - margin, margin:rs.shape[1] - margin] = data_matrix
-    return rs
-
-
-def convertToGrayValue(rgbValue):
-    return (0.299 * rgbValue[0] + 0.587 * rgbValue[1] + 0.114 * rgbValue[2])
-
-
-def writeImage(mode, size, outputPath):
-    newImg = Image.new(mode, size)
-    newImg.save(outputPath)
-
-
-def changeImageToGray(input, output):
-    img = readImage(input)
-    # pix = img.load()
-    grayMatrix = savePixelGrayValueToMatrix(img)
-    imgMatrix = np.transpose(np.array([grayMatrix, grayMatrix, grayMatrix]), (1, 2, 0))
-    imgRS = Image.fromarray(imgMatrix.astype('uint8'))
-    # imgRS.show()
-    imgRS.save(output)
 
 
 # type 1 : horizontal
@@ -361,74 +263,3 @@ def isBackwardSlashMax(id, magFlatten, width):
         id]):
         return True
     return False
-
-
-def from2dTo1d(yIndex, xIndex, width):
-    return yIndex * width + xIndex
-
-
-# [y,x]
-def from1dTo2d(id, width):
-    rs = np.empty((1, 2))
-    rs[0][0] = int(math.floor(id / width))
-    rs[0][1] = id % width
-    return rs
-
-
-if __name__ == '__main__':
-    start = time.clock()
-    initiateMask()
-    img = readImage(ip2)
-    gray_matrix = savePixelGrayValueToMatrix(img)
-    print(-1)
-    time1 = time.clock()
-    print(time1-start)
-    smoothGrayMatrix = smoothingAvg(gray_matrix, 1)
-    print(0)
-    time2 = time.clock()
-    print(time2-time1)
-    biggerMatrix = saveToBiggerMatrix(gray_matrix, 1)
-    print(1)
-    time3 = time.clock()
-    print(time3-time2)
-    horizontalGradientMatrix = getGradientMatrix(biggerMatrix, 1)
-    print(2)
-    time4 = time.clock()
-    print(time4-time3)
-    verticalGradientMatrix = getGradientMatrix(biggerMatrix, 2)
-    print(3)
-    time5 = time.clock()
-    print(time5-time4)
-    magnitudeMatrix = getMagnitudeMatrix(horizontalGradientMatrix, verticalGradientMatrix)
-    print(4)
-    time6 = time.clock()
-    print(time6-time5)
-    directionMatrix = getDirectionMatrix(horizontalGradientMatrix, verticalGradientMatrix)
-    print(5)
-    time7 = time.clock()
-    print(time7-time6)
-    edgePoints = cannyGetEdgePoints(magnitudeMatrix, directionMatrix, img.size[0])
-    print(6)
-    time8 = time.clock()
-    print(time8-time7)
-    edgeImg = Image.new("1", img.size, 255)
-    print(7)
-    pix = edgeImg.load()
-    for id in edgePoints:
-        location = from1dTo2d(id, img.size[0])
-        try:
-            pix[location[0][1], location[0][0]] = 0
-        except:
-            print(id)
-            print(location[0][1])
-            print(location[0][0])
-    edgeImg.save(op2)
-    print("--- %s seconds ---" % (time.clock() - start))
-
-    # edgeImg = Image.new("RGB", img.size, (255, 255, 255))
-    # changeImageToGray(ip,op)
-
-    # pix = edgeImg.load()
-    # for index in np.argwhere(gradientMatrix > threshold):
-    #     pix[np.asscalar(index[0]),np.asscalar(index[1])] = (0,0,0)
-    # edgeImg.save(op)
