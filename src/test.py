@@ -8,3 +8,9 @@ def testSmoothAvg():
     print(img_handler.smoothingAvg2(t,1))
     print("\n\n\n")
     print(img_handler.smoothingAvg(t,1))
+
+def twiceReturn():
+    if(5>0):
+        return 1
+    print("this sucks")
+    return 0

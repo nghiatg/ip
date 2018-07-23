@@ -17,3 +17,41 @@ def saveToBiggerMatrix(data_matrix, margin):
     rs[margin:rs.shape[0] - margin, margin:rs.shape[1] - margin] = data_matrix
     return rs
 
+
+# derection in degrees
+# output : [a,b] --> y = ax + b , x = (y-b)/a
+def getGraph(currentPoint, direction):
+    ab = np.empty((1,2))
+    ab[0][0] = math.tan(math.radians(direction))
+    ab[0][1] = currentPoint[0][0] + 0.5 - (currentPoint[0][1] + 0.5) * ab[0][0]
+    return ab
+
+
+# all is 2D
+# direction is degrees
+
+
+def rejectNotExpendablePoints(points , width):
+    count = 0;
+    rs = []
+    for id in points:
+        count = 0
+        if(id - width in points):
+            count += 1
+        if (id - width - 1 in points):
+            count += 1
+        if (id - width + 1 in points):
+            count += 1
+        if (id - 1 in points):
+            count += 1
+        if (id - 1 in points):
+            count += 1
+        if (id + width in points):
+            count += 1
+        if (id + width - 1 in points):
+            count += 1
+        if (id + width + 1 in points):
+            count += 1
+        if(count >= 2):
+            rs.append(id)
+    return rs

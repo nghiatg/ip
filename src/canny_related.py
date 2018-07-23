@@ -1,9 +1,8 @@
 import numpy as np
-import traceback
-
+from src import utils
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-bigThreshold = 200
+bigThreshold = 250
 smallThreshold = 70
 
 
@@ -15,9 +14,6 @@ def initiateMask():
     verticalMask[1] = ([0, 0, 0])
     verticalMask[2] = ([1, 2, 1])
 
-
-# type 1 : horizontal
-# type 2 : vertical
 # type 1 : horizontal
 # type 2 : vertical
 def getGradientMatrix(biggerMatrix, type):
@@ -43,13 +39,11 @@ def getMagnitudeMatrix(horMatrix, verMatrix):
 
 def getDirectionMatrix(horMatrix, verMatrix):
     np.seterr(all='ignore')
-    # tanMatrix =
-    # dirMatrix = np.array([math.degrees(math.atan(x)) for x in tanMatrix.flatten()]).reshape(horMatrix.shape)
     return np.degrees(np.arctan(horMatrix / verMatrix))
 
 
 # use 1d index
-def cannyGetEdgePoints(magMatrix, dirMatrix, width):
+def cannyGetEdgePoints(magMatrix, dirMatrix, width, useSmallThreshold):
     mag = magMatrix.flatten()
     dir = dirMatrix.flatten()
     points = []
@@ -69,74 +63,75 @@ def cannyGetEdgePoints(magMatrix, dirMatrix, width):
             if (isForwardSlashMax(id, mag, width)):
                 points.append(id)
 
-    # apply small threshold
-    print("done big threshold")
-    considering = points.copy()
-    newConsidering = points.copy()
-    while (considering):
-        considering = newConsidering.copy()
-        newConsidering = []
-        print("\nconsidering : " + str(len(considering)))
-        for id in considering:
-            if (dir[id] <= 22.5 or dir[id] > 157.5):
-                if ((id - width not in points) and getMagValue(id, mag, 1, width) >= smallThreshold
-                        and getDirValue(id, dir, 1,width) != -1 and (
-                                getDirValue(id, dir, 1, width) <= 22.5 or getDirValue(id, dir, 1, width) > 157.5)):
-                    if (isHorMax(id - width, mag, width)):
-                        points.append(id - width)
-                        newConsidering.append(id - width)
-                if ((id + width not in points) and getMagValue(id, mag, 7, width) >= smallThreshold
-                        and getDirValue(id,dir,7,width) != -1 and (
-                                getDirValue(id, dir, 7, width) <= 22.5 or getDirValue(id, dir, 7, width) > 157.5)):
-                    if (isHorMax(id + width, mag, width)):
-                        points.append(id + width)
-                        newConsidering.append(id + width)
+    if(useSmallThreshold == True):
+        # apply small threshold
+        print("done big threshold")
+        considering = [0]
+        newConsidering = points.copy()
 
-            elif (dir[id] <= 67.5):
-                if ((id - width + 1 not in points) and getMagValue(id, mag, 2, width) >= smallThreshold
-                        and getDirValue(id, dir, 2, width) != -1 and (
-                                getDirValue(id, dir, 2, width) <= 67.5 and getDirValue(id, dir, 2, width) > 22.5)):
-                    if (isBackwardSlashMax(id - width + 1, mag, width)):
-                        points.append(id - width + 1)
-                        newConsidering.append(id - width + 1)
-                if ((id + width - 1 not in points) and getMagValue(id, mag, 6, width) >= smallThreshold
-                        and getDirValue(id, dir, 6, width) != -1 and (
-                                getDirValue(id, dir, 6, width) <= 67.5 and getDirValue(id, dir, 6, width) > 22.5)):
-                    if (isBackwardSlashMax(id + width - 1, mag, width)):
-                        points.append(id + width - 1)
-                        newConsidering.append(id + width - 1)
+        while (considering):
+            considering = newConsidering
+            newConsidering = []
+            print("\nconsidering : " + str(len(considering)))
+            for id in considering:
+                if (dir[id] <= 22.5 or dir[id] > 157.5):
+                    if ((id - width not in points) and getMagValue(id, mag, 1, width) >= smallThreshold
+                            and getDirValue(id, dir, 1,width) != -1 and (
+                                    getDirValue(id, dir, 1, width) <= 22.5 or getDirValue(id, dir, 1, width) > 157.5)):
+                        if (isHorMax(id - width, mag, width)):
+                            points.append(id - width)
+                            newConsidering.append(id - width)
+                    if ((id + width not in points) and getMagValue(id, mag, 7, width) >= smallThreshold
+                            and getDirValue(id,dir,7,width) != -1 and (
+                                    getDirValue(id, dir, 7, width) <= 22.5 or getDirValue(id, dir, 7, width) > 157.5)):
+                        if (isHorMax(id + width, mag, width)):
+                            points.append(id + width)
+                            newConsidering.append(id + width)
 
-            elif (dir[id] <= 112.5):
-                if ((id - 1 not in points) and getMagValue(id, mag, 3, width) >= smallThreshold
-                        and getDirValue(id, dir,3,width) != -1 and (
-                                getDirValue(id, dir, 3, width) <= 112.5 and getDirValue(id, dir, 3, width) > 67.5)):
-                    if (isVerMax(id - 1, mag, width)):
-                        points.append(id - 1)
-                        newConsidering.append(id - 1)
-                if ((id + 1 not in points) and getMagValue(id, mag, 5, width) >= smallThreshold
-                        and getDirValue(id, dir,5,width) != -1 and (
-                                getDirValue(id, dir, 5, width) <= 67.5 and getDirValue(id, dir, 5, width) > 22.5)):
-                    if (isVerMax(id + 1, mag, width)):
-                        points.append(id + 1)
-                        newConsidering.append(id + 1)
+                elif (dir[id] <= 67.5):
+                    if ((id - width + 1 not in points) and getMagValue(id, mag, 2, width) >= smallThreshold
+                            and getDirValue(id, dir, 2, width) != -1 and (
+                                    getDirValue(id, dir, 2, width) <= 67.5 and getDirValue(id, dir, 2, width) > 22.5)):
+                        if (isBackwardSlashMax(id - width + 1, mag, width)):
+                            points.append(id - width + 1)
+                            newConsidering.append(id - width + 1)
+                    if ((id + width - 1 not in points) and getMagValue(id, mag, 6, width) >= smallThreshold
+                            and getDirValue(id, dir, 6, width) != -1 and (
+                                    getDirValue(id, dir, 6, width) <= 67.5 and getDirValue(id, dir, 6, width) > 22.5)):
+                        if (isBackwardSlashMax(id + width - 1, mag, width)):
+                            points.append(id + width - 1)
+                            newConsidering.append(id + width - 1)
 
-            elif (dir[id] <= 157.5):
-                if ((id - width - 1 not in points) and getMagValue(id, mag, 0, width) >= smallThreshold
-                        and getDirValue(id, dir, 0, width) != -1 and (
-                                getDirValue(id, dir, 0, width) <= 67.5 and getDirValue(id, dir, 0, width) > 22.5)):
-                    if (isForwardSlashMax(id - width - 1, mag, width)):
-                        points.append(id - width - 1)
-                        newConsidering.append(id - width - 1)
-                if ((id + width + 1 not in points) and getMagValue(id, mag, 8, width) >= smallThreshold
-                        and getDirValue(id, dir, 8, width) != -1 and (
-                                getDirValue(id, dir, 8, width) <= 67.5 and getDirValue(id, dir, 8, width) > 22.5)):
-                    if (isForwardSlashMax(id + width + 1, mag, width)):
-                        points.append(id + width + 1)
-                        newConsidering.append(id + width + 1)
+                elif (dir[id] <= 112.5):
+                    if ((id - 1 not in points) and getMagValue(id, mag, 3, width) >= smallThreshold
+                            and getDirValue(id, dir,3,width) != -1 and (
+                                    getDirValue(id, dir, 3, width) <= 112.5 and getDirValue(id, dir, 3, width) > 67.5)):
+                        if (isVerMax(id - 1, mag, width)):
+                            points.append(id - 1)
+                            newConsidering.append(id - 1)
+                    if ((id + 1 not in points) and getMagValue(id, mag, 5, width) >= smallThreshold
+                            and getDirValue(id, dir,5,width) != -1 and (
+                                    getDirValue(id, dir, 5, width) <= 67.5 and getDirValue(id, dir, 5, width) > 22.5)):
+                        if (isVerMax(id + 1, mag, width)):
+                            points.append(id + 1)
+                            newConsidering.append(id + 1)
+
+                elif (dir[id] <= 157.5):
+                    if ((id - width - 1 not in points) and getMagValue(id, mag, 0, width) >= smallThreshold
+                            and getDirValue(id, dir, 0, width) != -1 and (
+                                    getDirValue(id, dir, 0, width) <= 67.5 and getDirValue(id, dir, 0, width) > 22.5)):
+                        if (isForwardSlashMax(id - width - 1, mag, width)):
+                            points.append(id - width - 1)
+                            newConsidering.append(id - width - 1)
+                    if ((id + width + 1 not in points) and getMagValue(id, mag, 8, width) >= smallThreshold
+                            and getDirValue(id, dir, 8, width) != -1 and (
+                                    getDirValue(id, dir, 8, width) <= 67.5 and getDirValue(id, dir, 8, width) > 22.5)):
+                        if (isForwardSlashMax(id + width + 1, mag, width)):
+                            points.append(id + width + 1)
+                            newConsidering.append(id + width + 1)
 
     print("all : " + str(len(points)))
     return points
-
 
 # location:
 # 0   1   2
@@ -147,49 +142,41 @@ def getMagValue(id, magFlatten, relativeLocation, width):
         try:
             return magFlatten[id - width - 1]
         except:
-            traceback.print_exc()
             return 0
     elif (relativeLocation == 1):
         try:
             return magFlatten[id - width]
         except:
-            traceback.print_exc()
             return 0
     elif (relativeLocation == 2):
         try:
             return magFlatten[id - width + 1]
         except:
-            traceback.print_exc()
             return 0
     elif (relativeLocation == 3):
         try:
             return magFlatten[id - 1]
         except:
-            traceback.print_exc()
             return 0
     elif (relativeLocation == 5):
         try:
             return magFlatten[id + 1]
         except:
-            traceback.print_exc()
             return 0
     elif (relativeLocation == 6):
         try:
             return magFlatten[id + width - 1]
         except:
-            traceback.print_exc()
             return 0
     elif (relativeLocation == 7):
         try:
             return magFlatten[id + width]
         except:
-            traceback.print_exc()
             return 0
     elif (relativeLocation == 8):
         try:
             return magFlatten[id + width + 1]
         except:
-            traceback.print_exc()
             return 0
 
 
