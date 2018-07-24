@@ -18,6 +18,20 @@ def saveToBiggerMatrix(data_matrix, margin):
     return rs
 
 
+def convolve(theMatrix, kernel):
+    mWidth = theMatrix.shape[1]
+    mHeight = theMatrix.shape[0]
+    kWidth = kernel.shape[1]
+    kHeight = kernel.shape[0]
+    margin = math.floor(kWidth / 2)
+    biggerMatrix = saveToBiggerMatrix(theMatrix,margin)
+    rs = np.zeros((mHeight,mWidth))
+    for yM in range(mHeight):
+        for yK in range(kHeight):
+            rs[yM,:] += np.convolve(biggerMatrix[yM+yK,:],np.flipud(kernel[yK,:]),'valid')
+    return rs
+
+
 # derection in degrees
 # output : [a,b] --> y = ax + b , x = (y-b)/a
 def getGraph(currentPoint, direction):

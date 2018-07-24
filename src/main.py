@@ -5,8 +5,9 @@ from src.canny_related import initiateMask, getGradientMatrix, getMagnitudeMatri
 from src.img_handler import readImage, savePixelGrayValueToMatrix, smoothingAvg, smoothingAvg2
 from src import test
 import numpy as np
-ip = "..\\trump.jpg"
-op = "..\\trump_edge.jpg"
+from src import img_handler
+ip = "..\\bunny.jpg"
+op = "..\\bunny_edge.jpg"
 # ip = "..\\sunset_winter.jpg"
 # op = "..\\sunset_winter_edge.jpg"
 
@@ -15,14 +16,15 @@ def realMain():
     initiateMask()
     img = readImage(ip)
     gray_matrix = savePixelGrayValueToMatrix(img)
-    gray_matrix = smoothingAvg2(gray_matrix, 2)
+    gray_matrix = smoothingAvg2(gray_matrix, 1)
+    gray_matrix = img_handler.sharpen(gray_matrix,2)
     biggerMatrix = saveToBiggerMatrix(gray_matrix, 1)
     horizontalGradientMatrix = getGradientMatrix(biggerMatrix, 1)
     verticalGradientMatrix = getGradientMatrix(biggerMatrix, 2)
     magnitudeMatrix = getMagnitudeMatrix(horizontalGradientMatrix, verticalGradientMatrix)
     directionMatrix = getDirectionMatrix(horizontalGradientMatrix, verticalGradientMatrix)
     print(np.where(directionMatrix < 0)[0].shape)
-    edgePoints = cannyGetEdgePoints(magnitudeMatrix, directionMatrix, img.size[0], True)
+    edgePoints = cannyGetEdgePoints(magnitudeMatrix, directionMatrix, img.size[0], False)
     edgeImg = Image.new("1", img.size, 255)
     pix = edgeImg.load()
     for id in edgePoints:
@@ -32,8 +34,9 @@ def realMain():
     print("--- %s seconds ---" % (time.clock() - start))
 
 def testMain():
-    test.testSmoothAvg()
+    # test.testSmoothAvg()
     # print(test.twiceReturn())
+    test.testConvolve()
 
 if __name__ == '__main__':
     realMain()

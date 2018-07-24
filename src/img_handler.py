@@ -113,6 +113,12 @@ def smoothingAvg2(grayMatrix,margin):
             rs[y][x] = np.round(sumMatrix[y][x]/numberOfNearPixels)
     return rs
 
+def sharpen(grayMatrix, howSharp):
+    kernel = np.zeros((3,3))
+    kernel.fill(-1 * howSharp / 8)
+    kernel[1][1] = howSharp
+    return utils.convolve(grayMatrix,kernel)
+
 
 
 

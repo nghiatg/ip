@@ -2,7 +2,7 @@ import numpy as np
 from src import utils
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-bigThreshold = 150
+bigThreshold = 70
 smallThreshold = 20
 
 
