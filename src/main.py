@@ -15,7 +15,7 @@ def realMain():
     initiateMask()
     img = readImage(ip)
     gray_matrix = savePixelGrayValueToMatrix(img)
-    # gray_matrix = smoothingAvg2(gray_matrix, 1)
+    gray_matrix = smoothingAvg2(gray_matrix, 2)
     biggerMatrix = saveToBiggerMatrix(gray_matrix, 1)
     horizontalGradientMatrix = getGradientMatrix(biggerMatrix, 1)
     verticalGradientMatrix = getGradientMatrix(biggerMatrix, 2)
@@ -32,8 +32,8 @@ def realMain():
     print("--- %s seconds ---" % (time.clock() - start))
 
 def testMain():
-    # test.testSmoothAvg()
-    print(test.twiceReturn())
+    test.testSmoothAvg()
+    # print(test.twiceReturn())
 
 if __name__ == '__main__':
     realMain()

@@ -90,26 +90,27 @@ def changeImageToGray(input, output):
 def smoothingAvg2(grayMatrix,margin):
     width = grayMatrix.shape[1]
     height = grayMatrix.shape[0]
-    biggerMatrix = utils.saveToBiggerMatrix(grayMatrix,1)
+    biggerMatrix = utils.saveToBiggerMatrix(grayMatrix,margin)
     # print(biggerMatrix)
-    sum_Y_Matrix = np.empty((height,width+2))
-    for y in range(1,biggerMatrix.shape[0]-1):
-        sum_Y_Matrix[y-1,:] = biggerMatrix[y-1,:] + biggerMatrix[y,:] + biggerMatrix[y+1,:]
-    # print(sum_Y_Matrix)
-    sumMatrix = np.empty(grayMatrix.shape)
-    for x in range(1,biggerMatrix.shape[1]-1):
-        sumMatrix[:,x-1] = sum_Y_Matrix[:,x-1] + sum_Y_Matrix[:,x+1] + sum_Y_Matrix[:,x]
-    # print(sumMatrix)
+    sum_Y_Matrix = np.zeros((height, width + margin*2))
+    for y in range(margin,biggerMatrix.shape[0]-margin):
+        for i in range(y - margin, y + margin + 1):
+            sum_Y_Matrix[y-margin,:] += biggerMatrix[i,:]
+    sumMatrix = np.zeros(grayMatrix.shape)
+    for x in range(margin,biggerMatrix.shape[1]-margin):
+        for i in range(x - margin, x + margin + 1):
+            # print(sumMatrix[:,x-margin])
+            # print(biggerMatrix[:,i])
+            sumMatrix[:,x-margin] += sum_Y_Matrix[:,i]
     rs = np.empty(grayMatrix.shape)
-    rs[1:height-1,1:width-1] = np.round(sumMatrix[1:height-1,1:width-1]/9)
-    rs[0,1:width-1] = np.round(sumMatrix[0,1:width-1] / 6)
-    rs[height-1, 1:width - 1] = np.round(sumMatrix[height-1, 1:width - 1] / 6)
-    rs[1:height-1, 0] = np.round(sumMatrix[1:height-1, 0] / 6)
-    rs[1:height - 1, width-1] = np.round(sumMatrix[1:height - 1, width-1] / 6)
-    rs[0][0] = np.round(sumMatrix[0][0] / 4)
-    rs[0][width-1] = np.round(sumMatrix[0][width-1] / 4)
-    rs[height-1][0] = np.round(sumMatrix[height-1][0] / 4)
-    rs[height-1][width-1] = np.round(sumMatrix[height-1][width-1] / 4)
+    for y in range(height):
+        for x in range(width):
+            top = y - margin if y >= margin else 0
+            bottom = y + margin if y + margin < height else height - 1
+            left = x - margin if x >= margin else 0
+            right = x + margin if x + margin < width else width  - 1
+            numberOfNearPixels = (bottom - top + 1) * (right - left + 1)
+            rs[y][x] = np.round(sumMatrix[y][x]/numberOfNearPixels)
     return rs
 
 
