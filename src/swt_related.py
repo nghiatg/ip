@@ -22,7 +22,8 @@ def swt(edgePoints, dirMatrix):
         gradientDirection = dirMatrix[edgePoints2D[i][0]][edgePoints2D[i][1]]     # also stroke-width direction
         strokeWidth = findStrokeWidthInDirection(currentPoint,edgePoints2D,gradientDirection,dirMatrix,eliminatedEdgePoints)
         for i in range(strokeWidth.shape[0]):
-            swtMatrix[strokeWidth[i][0]][strokeWidth[i][1]] = strokeWidth.shape[0]
+            if(swtMatrix[strokeWidth[i][0]][strokeWidth[i][1]] > strokeWidth.shape[0]):
+                swtMatrix[strokeWidth[i][0]][strokeWidth[i][1]] = strokeWidth.shape[0]
     return swtMatrix
 
 

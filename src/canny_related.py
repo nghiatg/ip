@@ -2,8 +2,8 @@ import numpy as np
 from src import utils
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-bigThreshold = 250
-smallThreshold = 70
+bigThreshold = 150
+smallThreshold = 20
 
 
 def initiateMask():
@@ -74,58 +74,54 @@ def cannyGetEdgePoints(magMatrix, dirMatrix, width, useSmallThreshold):
             newConsidering = []
             print("\nconsidering : " + str(len(considering)))
             for id in considering:
-                if (dir[id] <= 22.5 or dir[id] > 157.5):
+
+                # bucket 3
+                if (dirInWhichBucket(dir[id]) == 3):
                     if ((id - width not in points) and getMagValue(id, mag, 1, width) >= smallThreshold
-                            and getDirValue(id, dir, 1,width) != -1 and (
-                                    getDirValue(id, dir, 1, width) <= 22.5 or getDirValue(id, dir, 1, width) > 157.5)):
+                            and getDirValue(id, dir, 1,width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 1, width)) == 3)):
                         if (isHorMax(id - width, mag, width)):
                             points.append(id - width)
                             newConsidering.append(id - width)
                     if ((id + width not in points) and getMagValue(id, mag, 7, width) >= smallThreshold
-                            and getDirValue(id,dir,7,width) != -1 and (
-                                    getDirValue(id, dir, 7, width) <= 22.5 or getDirValue(id, dir, 7, width) > 157.5)):
+                            and getDirValue(id,dir,7,width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 7, width)) == 3)):
                         if (isHorMax(id + width, mag, width)):
                             points.append(id + width)
                             newConsidering.append(id + width)
-
-                elif (dir[id] <= 67.5):
+                # bucket 1
+                elif (dirInWhichBucket(dir[id]) == 1):
                     if ((id - width + 1 not in points) and getMagValue(id, mag, 2, width) >= smallThreshold
-                            and getDirValue(id, dir, 2, width) != -1 and (
-                                    getDirValue(id, dir, 2, width) <= 67.5 and getDirValue(id, dir, 2, width) > 22.5)):
+                            and getDirValue(id, dir, 2, width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 2, width)) == 1)):
                         if (isBackwardSlashMax(id - width + 1, mag, width)):
                             points.append(id - width + 1)
                             newConsidering.append(id - width + 1)
                     if ((id + width - 1 not in points) and getMagValue(id, mag, 6, width) >= smallThreshold
-                            and getDirValue(id, dir, 6, width) != -1 and (
-                                    getDirValue(id, dir, 6, width) <= 67.5 and getDirValue(id, dir, 6, width) > 22.5)):
+                            and getDirValue(id, dir, 6, width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 6, width)) == 1)):
                         if (isBackwardSlashMax(id + width - 1, mag, width)):
                             points.append(id + width - 1)
                             newConsidering.append(id + width - 1)
 
-                elif (dir[id] <= 112.5):
+                # bucket 4
+                elif (dirInWhichBucket(dir[id]) == 4):
                     if ((id - 1 not in points) and getMagValue(id, mag, 3, width) >= smallThreshold
-                            and getDirValue(id, dir,3,width) != -1 and (
-                                    getDirValue(id, dir, 3, width) <= 112.5 and getDirValue(id, dir, 3, width) > 67.5)):
+                            and getDirValue(id, dir,3,width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 3, width)) == 4)):
                         if (isVerMax(id - 1, mag, width)):
                             points.append(id - 1)
                             newConsidering.append(id - 1)
                     if ((id + 1 not in points) and getMagValue(id, mag, 5, width) >= smallThreshold
-                            and getDirValue(id, dir,5,width) != -1 and (
-                                    getDirValue(id, dir, 5, width) <= 67.5 and getDirValue(id, dir, 5, width) > 22.5)):
+                            and getDirValue(id, dir,5,width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 5, width)) == 4)):
                         if (isVerMax(id + 1, mag, width)):
                             points.append(id + 1)
                             newConsidering.append(id + 1)
 
-                elif (dir[id] <= 157.5):
+                # bucket 2
+                elif (dirInWhichBucket(dir[id]) == 2):
                     if ((id - width - 1 not in points) and getMagValue(id, mag, 0, width) >= smallThreshold
-                            and getDirValue(id, dir, 0, width) != -1 and (
-                                    getDirValue(id, dir, 0, width) <= 67.5 and getDirValue(id, dir, 0, width) > 22.5)):
+                            and getDirValue(id, dir, 0, width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 0, width)) == 2)):
                         if (isForwardSlashMax(id - width - 1, mag, width)):
                             points.append(id - width - 1)
                             newConsidering.append(id - width - 1)
                     if ((id + width + 1 not in points) and getMagValue(id, mag, 8, width) >= smallThreshold
-                            and getDirValue(id, dir, 8, width) != -1 and (
-                                    getDirValue(id, dir, 8, width) <= 67.5 and getDirValue(id, dir, 8, width) > 22.5)):
+                            and getDirValue(id, dir, 8, width) != -1 and (dirInWhichBucket(getDirValue(id, dir, 8, width)) == 2)):
                         if (isForwardSlashMax(id + width + 1, mag, width)):
                             points.append(id + width + 1)
                             newConsidering.append(id + width + 1)
@@ -257,3 +253,21 @@ def isBackwardSlashMax(id, magFlatten, width):
         return True
     else:
         return False
+
+
+# parameter : gradient direction
+# output is edge direction as below
+#       1 : /
+#       2 : \
+#       3 : |
+#       4 : -
+def dirInWhichBucket(dirValue):
+    if((dirValue < 22.5 and dirValue >= -22.5) or (dirValue >= 157.5 and dirValue < -157.5)):
+        return 3
+    elif((dirValue < 67.5 and dirValue >= 22.5) or (dirValue >= -157.5 and dirValue < -112.5)):
+        return 1
+    elif((dirValue < 112.5 and dirValue >= 67.5) or (dirValue >= -112.5 and dirValue < -67.5)):
+        return 4
+    else:
+        return 2
+
