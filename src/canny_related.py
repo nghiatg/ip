@@ -2,7 +2,7 @@ import numpy as np
 from src import utils
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-bigThreshold = 70
+bigThreshold = 150
 smallThreshold = 20
 
 
@@ -67,16 +67,16 @@ def cannyGetEdgePoints(magMatrix, dirMatrix, width, useSmallThreshold):
     # apply big threshold
     gt = np.where(mag >= bigThreshold)
     for id in gt[0]:
-        if (dir[id] <= 22.5 or dir[id] > 157.5):
+        if (dirInWhichBucket(dir[id]) == 4):
             if (isHorMax(id, mag, width)):
                 points.append(id)
-        elif (dir[id] <= 67.5):
+        elif (dirInWhichBucket(dir[id]) == 1):
             if (isBackwardSlashMax(id, mag, width)):
                 points.append(id)
-        elif (dir[id] <= 112.5):
+        elif (dirInWhichBucket(dir[id]) == 3):
             if (isVerMax(id, mag, width)):
                 points.append(id)
-        elif (dir[id] <= 157.5):
+        elif (dirInWhichBucket(dir[id]) == 2):
             if (isForwardSlashMax(id, mag, width)):
                 points.append(id)
 
