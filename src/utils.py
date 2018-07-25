@@ -8,7 +8,7 @@ def from2dTo1d(yIndex, xIndex, width):
 def from1dTo2d(id, width):
     rs = np.empty((1, 2))
     rs[0][0] = int(math.floor(id / width))
-    rs[0][1] = id % width
+    rs[0][1] = int(id % width)
     return rs
 
 
@@ -44,6 +44,8 @@ def getGraph(currentPoint, direction):
 # all is 2D
 # direction is degrees
 
+def getSgn(matrix):
+    return (np.sign(np.sign(matrix) + 1) * 2 - 1)
 
 def rejectNotExpendablePoints(points , width):
     count = 0;
@@ -69,3 +71,6 @@ def rejectNotExpendablePoints(points , width):
         if(count >= 2):
             rs.append(id)
     return rs
+
+def oppositeDirection(direction1, direction2, acceptableDiff):
+    return direction1 * -1 - acceptableDiff <= direction2 <= direction1 * -1 + acceptableDiff

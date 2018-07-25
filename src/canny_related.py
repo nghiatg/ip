@@ -2,7 +2,7 @@ import numpy as np
 from src import utils
 horizontalMask = np.empty(shape=(3, 3))
 verticalMask = np.empty(shape=(3, 3))
-bigThreshold = 50
+bigThreshold = 70
 smallThreshold = 20
 
 
@@ -39,7 +39,24 @@ def getMagnitudeMatrix(horMatrix, verMatrix):
 
 def getDirectionMatrix(horMatrix, verMatrix):
     np.seterr(all='ignore')
-    return np.degrees(np.arctan(horMatrix / verMatrix))
+    # print(horMatrix[1,:])
+    # print(verMatrix[1,:])
+    rawRs = np.degrees(np.arctan(verMatrix / horMatrix))
+    # print(rawRs[1,:])
+    # sgnHorMatrix = np.sign(horMatrix)
+    # sgnHorMatrix -= 1
+    # sgnHorMatrix *= -1
+    # sgnrawMatrix = np.sign(rawRs)
+    # addToRs = sgnrawMatrix * sgnHorMatrix * -90
+    addToRs = (utils.getSgn(horMatrix) - 1) * utils.getSgn(rawRs) * 90
+    rs = (addToRs + rawRs)
+    # print(rs[1,:])
+    # print(np.floor(horMatrix[125:136,125:136]))
+    # print(np.floor(rawRs[125:136,125:136]))
+    # print(np.floor(rs[125:136,125:136]))
+    return rs
+
+
 
 
 # use 1d index
