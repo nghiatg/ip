@@ -16,21 +16,11 @@ def initiateMask():
 
 # type 1 : horizontal
 # type 2 : vertical
-def getGradientMatrix(biggerMatrix, type):
-    rs = np.empty(shape=(biggerMatrix.shape[0] - 2, biggerMatrix.shape[1] - 2))
-
+def getGradientMatrix(gray_matrix, type):
     if (type == 1):
-        for y in range(1, biggerMatrix.shape[1] - 2):
-            leftConvolution = np.convolve(horizontalMask[:, 0], biggerMatrix[:, y - 1], mode="valid")
-            rightConvolution = np.convolve(horizontalMask[:, 2], biggerMatrix[:, y + 1], mode="valid")
-            rs[:, y - 1] = leftConvolution + rightConvolution
-        return rs
+        return utils.convolve(gray_matrix,horizontalMask)
     else:
-        for x in range(1, biggerMatrix.shape[0] - 2):
-            upperConvolution = np.convolve(verticalMask[0, :], biggerMatrix[x - 1, :], mode="valid")
-            bottomConvolution = np.convolve(verticalMask[2, :], biggerMatrix[x + 1, :], mode="valid")
-            rs[x - 1, :] = upperConvolution + bottomConvolution
-        return rs
+        return utils.convolve(gray_matrix,verticalMask)
 
 
 def getMagnitudeMatrix(horMatrix, verMatrix):
@@ -67,81 +57,18 @@ def cannyGetEdgePoints(magMatrix, dirMatrix, width, useSmallThreshold):
     # apply big threshold
     gt = np.where(mag >= bigThreshold)
     for id in gt[0]:
-        if (dirInWhichBucket(dir[id]) == 4):
+        if (dirInWhichBucket(dir[id]) == 3):
             if (isHorMax(id, mag, width)):
                 points.append(id)
         elif (dirInWhichBucket(dir[id]) == 1):
             if (isBackwardSlashMax(id, mag, width)):
                 points.append(id)
-        elif (dirInWhichBucket(dir[id]) == 3):
+        elif (dirInWhichBucket(dir[id]) == 4):
             if (isVerMax(id, mag, width)):
                 points.append(id)
         elif (dirInWhichBucket(dir[id]) == 2):
             if (isForwardSlashMax(id, mag, width)):
                 points.append(id)
-
-    if(useSmallThreshold == True):
-        # apply small threshold
-        print("done big threshold")
-        considering = [0]
-        newConsidering = points.copy()
-
-        while (considering):
-            considering = newConsidering
-            newConsidering = []
-            print("\nconsidering : " + str(len(considering)))
-            for id in considering:
-
-                # bucket 3
-                if (dirInWhichBucket(dir[id]) == 3):
-                    if ((id - width not in points) and getMagValue(id, mag, 1, width) >= smallThreshold
-                            and getDirValue(id, dir, 1,width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 1, width)) == 3)):
-                        if (isHorMax(id - width, mag, width)):
-                            points.append(id - width)
-                            newConsidering.append(id - width)
-                    if ((id + width not in points) and getMagValue(id, mag, 7, width) >= smallThreshold
-                            and getDirValue(id,dir,7,width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 7, width)) == 3)):
-                        if (isHorMax(id + width, mag, width)):
-                            points.append(id + width)
-                            newConsidering.append(id + width)
-                # bucket 1
-                elif (dirInWhichBucket(dir[id]) == 1):
-                    if ((id - width + 1 not in points) and getMagValue(id, mag, 2, width) >= smallThreshold
-                            and getDirValue(id, dir, 2, width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 2, width)) == 1)):
-                        if (isBackwardSlashMax(id - width + 1, mag, width)):
-                            points.append(id - width + 1)
-                            newConsidering.append(id - width + 1)
-                    if ((id + width - 1 not in points) and getMagValue(id, mag, 6, width) >= smallThreshold
-                            and getDirValue(id, dir, 6, width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 6, width)) == 1)):
-                        if (isBackwardSlashMax(id + width - 1, mag, width)):
-                            points.append(id + width - 1)
-                            newConsidering.append(id + width - 1)
-
-                # bucket 4
-                elif (dirInWhichBucket(dir[id]) == 4):
-                    if ((id - 1 not in points) and getMagValue(id, mag, 3, width) >= smallThreshold
-                            and getDirValue(id, dir,3,width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 3, width)) == 4)):
-                        if (isVerMax(id - 1, mag, width)):
-                            points.append(id - 1)
-                            newConsidering.append(id - 1)
-                    if ((id + 1 not in points) and getMagValue(id, mag, 5, width) >= smallThreshold
-                            and getDirValue(id, dir,5,width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 5, width)) == 4)):
-                        if (isVerMax(id + 1, mag, width)):
-                            points.append(id + 1)
-                            newConsidering.append(id + 1)
-
-                # bucket 2
-                elif (dirInWhichBucket(dir[id]) == 2):
-                    if ((id - width - 1 not in points) and getMagValue(id, mag, 0, width) >= smallThreshold
-                            and getDirValue(id, dir, 0, width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 0, width)) == 2)):
-                        if (isForwardSlashMax(id - width - 1, mag, width)):
-                            points.append(id - width - 1)
-                            newConsidering.append(id - width - 1)
-                    if ((id + width + 1 not in points) and getMagValue(id, mag, 8, width) >= smallThreshold
-                            and getDirValue(id, dir, 8, width) != 181 and (dirInWhichBucket(getDirValue(id, dir, 8, width)) == 2)):
-                        if (isForwardSlashMax(id + width + 1, mag, width)):
-                            points.append(id + width + 1)
-                            newConsidering.append(id + width + 1)
 
     print("all : " + str(len(points)))
     return points
@@ -241,7 +168,7 @@ def getDirValue(id, dirFlatten, relativeLocation, width):
 
 
 def isHorMax(id, magFlatten, width):
-    if (getMagValue(id, magFlatten, 1, width) < magFlatten[id] and getMagValue(id, magFlatten, 7, width) < magFlatten[
+    if (getMagValue(id, magFlatten, 3, width) < magFlatten[id] and getMagValue(id, magFlatten, 5, width) < magFlatten[
         id]):
         return True
     else:
@@ -249,7 +176,7 @@ def isHorMax(id, magFlatten, width):
 
 
 def isVerMax(id, magFlatten, width):
-    if (getMagValue(id, magFlatten, 3, width) < magFlatten[id] and getMagValue(id, magFlatten, 5, width) < magFlatten[
+    if (getMagValue(id, magFlatten, 1, width) < magFlatten[id] and getMagValue(id, magFlatten, 7, width) < magFlatten[
         id]):
         return True
     else:

@@ -6,8 +6,8 @@ from src import utils
 from time import clock
 
 
-small_threshold = 0
-big_threshold = 10
+small_threshold = 7
+big_threshold = 20
 np.set_printoptions(threshold=np.inf)
 # execute 2 tiems for 2 direction
 def swt(edgePoints, dirMatrix):
@@ -45,16 +45,16 @@ def swt(edgePoints, dirMatrix):
                 swtMatrix[int(strokeWidth[y][0])][int(strokeWidth[y][1])] = strokeWidth.shape[0]
                 
     # second time
-    for i in range(edgePoints2D.shape[0]):
-        currentPoint = np.array([[edgePoints2D[i][0], edgePoints2D[i][1]]])
-        gradientDirection = dirMatrix[int(edgePoints2D[i][0])][int(edgePoints2D[i][1])] - 180  # also stroke-width direction
-        strokeWidth = findStrokeWidthInDirection(currentPoint, edgeMatrix, gradientDirection, dirMatrix)
-        if strokeWidth.shape[0] == 0:
-            continue
-        sws.append(strokeWidth)
-        for y in range(strokeWidth.shape[0]):
-            if (swtMatrix[int(strokeWidth[y][0])][int(strokeWidth[y][1])] > strokeWidth.shape[0]):
-                swtMatrix[int(strokeWidth[y][0])][int(strokeWidth[y][1])] = strokeWidth.shape[0]
+    # for i in range(edgePoints2D.shape[0]):
+    #     currentPoint = np.array([[edgePoints2D[i][0], edgePoints2D[i][1]]])
+    #     gradientDirection = dirMatrix[int(edgePoints2D[i][0])][int(edgePoints2D[i][1])] - 180  # also stroke-width direction
+    #     strokeWidth = findStrokeWidthInDirection(currentPoint, edgeMatrix, gradientDirection, dirMatrix)
+    #     if strokeWidth.shape[0] == 0:
+    #         continue
+    #     sws.append(strokeWidth)
+    #     for y in range(strokeWidth.shape[0]):
+    #         if (swtMatrix[int(strokeWidth[y][0])][int(strokeWidth[y][1])] > strokeWidth.shape[0]):
+    #             swtMatrix[int(strokeWidth[y][0])][int(strokeWidth[y][1])] = strokeWidth.shape[0]
                 
     # second phase
     # for sw in sws:
@@ -69,6 +69,7 @@ def swt(edgePoints, dirMatrix):
 def findStrokeWidthInDirection(currentPoint, edgeMatrix, direction, dirMatrix):
     print("\n\n")
     print(currentPoint)
+    print(direction)
     # time = clock()
     strokeWidth = currentPoint.copy()
     incrementX = math.cos(math.radians(direction))
@@ -111,8 +112,8 @@ def findStrokeWidthInDirection(currentPoint, edgeMatrix, direction, dirMatrix):
         directionNextPoint = dirMatrix[newY][newX]
         # print(clock() - time5)
         # time6 = clock()
-        if not utils.similarDirection(direction,directionNextPoint,30):
-            strokeWidth = np.zeros((0,0))
+        # if not utils.similarDirection(direction,directionNextPoint,70):
+        #     strokeWidth = np.zeros((0,0))
         # print(clock() - time6)
 
         break

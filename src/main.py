@@ -8,33 +8,31 @@ from src import test
 from src import swt_related
 import numpy as np
 from src import img_handler
-img_name = "bunny"
+img_name = "idiots"
 ip = "..\\" + img_name + ".jpg"
-edgeOp = "..\\" + img_name + "_edge.jpg"
-swtOp = "..\\" + img_name + "_swt.jpg"
+edgeOp = "..\\" + img_name + "__edge.jpg"
+swtOp = "..\\" + img_name + "__swt.jpg"
 # ip = "..\\sunset_winter.jpg"
 # op = "..\\sunset_winter_edge.jpg"
 
 def realMain():
     try:
-        os.remove(op)
+        os.remove(edgeOp)
+    except:
+        pass
+    try:
+        os.remove(swtOp)
     except:
         pass
     start = time.clock()
     initiateMask()
     img = readImage(ip)
     gray_matrix = savePixelGrayValueToMatrix(img)
-    gray_matrix = smoothingAvg(gray_matrix, 1)
-    gray_matrix = smoothingAvg(gray_matrix, 1)
     # gray_matrix = smoothingAvg(gray_matrix, 1)
     # gray_matrix = smoothingAvg(gray_matrix, 1)
-    # gray_matrix = smoothingAvg(gray_matrix, 1)
-    gray_matrix = img_handler.sharpen(gray_matrix,2)
-    # gray_matrix = smoothingAvg(gray_matrix, 1)
-    # gray_matrix = smoothingAvg(gray_matrix, 1)
-    biggerMatrix = saveToBiggerMatrix(gray_matrix, 1)
-    horizontalGradientMatrix = getGradientMatrix(biggerMatrix, 1)
-    verticalGradientMatrix = getGradientMatrix(biggerMatrix, 2)
+    # gray_matrix = img_handler.sharpen(gray_matrix,2)
+    horizontalGradientMatrix = getGradientMatrix(gray_matrix, 1)
+    verticalGradientMatrix = getGradientMatrix(gray_matrix, 2)
     magnitudeMatrix = getMagnitudeMatrix(horizontalGradientMatrix, verticalGradientMatrix)
     directionMatrix = getDirectionMatrix(horizontalGradientMatrix, verticalGradientMatrix)
     edgePoints = cannyGetEdgePoints(magnitudeMatrix, directionMatrix, img.size[0], False)

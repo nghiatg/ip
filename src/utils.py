@@ -73,5 +73,6 @@ def rejectNotExpendablePoints(points , width):
     return rs
 
 def similarDirection(direction1, direction2, acceptableDiff):
-    return (direction1 * -1 - acceptableDiff <= direction2 <= direction1 * -1 + acceptableDiff
+    oppositeOf1 = (180 - math.fabs(direction1)) * math.copysign(-1,direction1)
+    return (oppositeOf1 - acceptableDiff <= direction2 <= oppositeOf1 + acceptableDiff
            or direction1 - acceptableDiff <= direction2 <= direction1 + acceptableDiff)
