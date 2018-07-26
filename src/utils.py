@@ -72,5 +72,6 @@ def rejectNotExpendablePoints(points , width):
             rs.append(id)
     return rs
 
-def oppositeDirection(direction1, direction2, acceptableDiff):
-    return direction1 * -1 - acceptableDiff <= direction2 <= direction1 * -1 + acceptableDiff
+def similarDirection(direction1, direction2, acceptableDiff):
+    return (direction1 * -1 - acceptableDiff <= direction2 <= direction1 * -1 + acceptableDiff
+           or direction1 - acceptableDiff <= direction2 <= direction1 + acceptableDiff)

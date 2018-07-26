@@ -8,8 +8,10 @@ from src import test
 from src import swt_related
 import numpy as np
 from src import img_handler
-ip = "..\\slogans.jpg"
-op = "..\\slogans_swt.jpg"
+img_name = "bunny"
+ip = "..\\" + img_name + ".jpg"
+edgeOp = "..\\" + img_name + "_edge.jpg"
+swtOp = "..\\" + img_name + "_swt.jpg"
 # ip = "..\\sunset_winter.jpg"
 # op = "..\\sunset_winter_edge.jpg"
 
@@ -37,22 +39,22 @@ def realMain():
     directionMatrix = getDirectionMatrix(horizontalGradientMatrix, verticalGradientMatrix)
     edgePoints = cannyGetEdgePoints(magnitudeMatrix, directionMatrix, img.size[0], False)
 
-    # edgeImg = Image.new("1", img.size, 255)
-    # pix = edgeImg.load()
-    # for id in edgePoints:
-    #     location = from1dTo2d(id, img.size[0])
-    #     pix[location[0][1], location[0][0]] = 0
-    # edgeImg.save(op)
+    edgeImg = Image.new("1", img.size, 255)
+    pix = edgeImg.load()
+    for id in edgePoints:
+        location = from1dTo2d(id, img.size[0])
+        pix[location[0][1], location[0][0]] = 0
+    edgeImg.save(edgeOp)
 
 
 
     swtMatrix = swt_related.swt(edgePoints,directionMatrix)
     pixelsInText = np.where(np.logical_and(np.greater_equal(swtMatrix,swt_related.small_threshold),np.greater_equal(swt_related.big_threshold,swtMatrix)))
-    edgeImg = Image.new("1", img.size, 255)
-    pix = edgeImg.load()
+    swtImg = Image.new("1", img.size, 255)
+    pixSwt = swtImg.load()
     for i in range(pixelsInText[0].size):
-        pix[int(pixelsInText[1][i]), int(pixelsInText[0][i])] = 0
-    edgeImg.save(op)
+        pixSwt[int(pixelsInText[1][i]), int(pixelsInText[0][i])] = 0
+    swtImg.save(swtOp)
     print("--- %s seconds ---" % (time.clock() - start))
 
 def testMain():
